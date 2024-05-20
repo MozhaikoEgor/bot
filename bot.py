@@ -291,27 +291,9 @@ def get_phone_number(update, context):
                 connection.close()
 
 
-def get_repl_log(update: Update, context: CallbackContext) -> None:
-    try:
-        # Выполнение команды для получения логов
-        result = subprocess.run(
-            ["bash", "-c", f"cat {LOG_FILE_PATH} | grep repl | tail -n 15"],
-            capture_output=True,
-            text=True,
-            check=True  # Проверка наличия ошибок выполнения
-        )
-        logs = result.stdout
-        if logs:
-            update.message.reply_text(f"Последние репликационные логи:\n{logs}")
-        else:
-            update.message.reply_text("Репликационные логи не найдены.")
-    except subprocess.CalledProcessError as e:
-        update.message.reply_text(f"Ошибка при выполнении команды: {e}")
-    except Exception as e:
-        update.message.reply_text(f"Ошибка при получении логов: {str(e)}")
-
-        # Создаем обработчик команды /get_repl_logs
-repl_logs_handler = CommandHandler('get_repl_log', get_repl_log)
+def get_repl_log(update, context):
+    output = ssh_exec_command('cat /var/log/postgresql/postgresql-14-main.log | grep repl | tail -n 15')
+    update.message.reply_text(output)
 
 
 def echo(update: Update, context):
